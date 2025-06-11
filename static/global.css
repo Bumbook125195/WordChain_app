@@ -3,6 +3,7 @@
 body {
     font-family: 'Noto Sans JP', sans-serif;
     margin-top: 100px;
+    margin-bottom: 75px;
 }
 
 header {
@@ -19,7 +20,7 @@ header {
 header input {
     margin-top: 11px;
     width: 40px;
-    height: 37px;
+    height: 35px;
 }
 
 header h3:last-of-type {

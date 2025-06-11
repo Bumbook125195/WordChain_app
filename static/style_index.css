@@ -1,37 +1,50 @@
-@import url(http://fonts.googleapis.com/earlyaccess/notosansjp.css);
+@import url(./global.css); /* グローバルなスタイルをインポート */
 
-body {
-    font-family: 'Noto Sans JP', sans-serif;
-}
-
-header {
-    top: 0;
-    left: 0;
-    position: fixed;
-    background: linear-gradient(90deg, #52357b, #5459ac 33%, #648db3 66%, #b2d8ce);
-    width: 100%;
-    height: 70px;
-}
-
+/*
+ * h1: メインタイトルなど
+ * font-sizeをvwで設定しつつ、clamp()で最小値と最大値を制御
+ */
 h1 {
-    margin-top: 17vh;
-    margin-bottom: 5vh;
     text-align: center;
-    font-size: 96px;
+    margin: 0;
+    /*
+     * clamp(最小値, 推奨値 (相対値), 最大値)
+     * 例: 最小24px、推奨9vw（画面幅の9%）、最大96px
+     * 画面が狭いときは24pxまで縮み、広いときは96pxまで拡大する
+     */
+    font-size: clamp(24px, 9vw, 96px);
     font-weight: 900;
     color: #000;
+    /* white-space: nowrap; */ /* 必要であれば、改行されないように */
 }
 
-p {
+/*
+ * nav: ナビゲーションメニューのコンテナ
+ * margin-topをvhで設定しつつ、clamp()で最小値を設定 (例: 最小20px)
+ */
+nav {
+    /*
+     * clamp(最小値, 推奨値 (相対値), 最大値)
+     * margin-top: clamp(20px, 9.3vh, 100px); のように最大値を設定することも可能
+     */
+    margin-top: clamp(20px, 9.3vh, 100px); /* 最小20px、推奨9.3vh、最大100px（例）*/
+}
+
+/*
+ * .transition: 特定のテキスト要素 (例: ボタン内の文字など)
+ * font-sizeをemで設定しつつ、clamp()で最小値と最大値を制御
+ * marginもvwで設定しつつ、clamp()で最小値と最大値を制御
+ */
+.transition {
     text-align: center;
-    font-size: 48px;
-    margin: 10px;
-}
-
-a {
-    color: #648DB3;
-}
-
-a:hover {
-    color: #B2D8CE;
+    /*
+     * clamp(最小値, 推奨値 (相対値), 最大値)
+     * 例: 最小16px、推奨2.1em（親要素のフォントサイズの2.1倍）、最大32px
+     */
+    font-size: clamp(16px, 2.1em, 32px);
+    /*
+     * marginもclamp()で制御
+     * 例: 最小5px、推奨1.7vw、最大20px
+     */
+    margin: clamp(5px, 1.7vw, 20px);
 }
