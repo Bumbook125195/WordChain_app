@@ -1,0 +1,52 @@
+@import url(./global.css); /* グローバルなスタイルをインポート */
+
+/*
+ * h2: セクションタイトルなど
+ * font-sizeをvwで設定しつつ、clamp()で最小値と最大値を制御
+ */
+h2 {
+    text-align: center;
+    margin: 0 0 7vw 0;
+    /*
+     * clamp(最小値, 推奨値 (相対値), 最大値)
+     * 例: 最小20px、推奨5vw（画面幅の5%）、最大64px
+     * 画面が狭いときは20pxまで縮み、広いときは64pxまで拡大を制限
+     */
+    font-size: clamp(20px, 5vw, 64px);
+    font-weight: 900;
+    color: #000;
+}
+
+/*
+ * p: 通常の段落テキスト
+ * font-sizeと左右のmarginをvwで設定しつつ、clamp()で最小値と最大値を制御
+ */
+p {
+    /*
+     * clamp(最小値, 推奨値 (相対値), 最大値)
+     * 例: 最小14px、推奨3vw（画面幅の3%）、最大24px
+     */
+    font-size: clamp(14px, 3vw, 24px);
+    /* 左右のmarginもclamp()で制御 */
+    margin-left: clamp(10px, 5vw, 60px);  /* 最小10px、推奨5vw、最大60px */
+    margin-right: clamp(10px, 5vw, 60px); /* 最小10px、推奨5vw、最大60px */
+}
+
+nav {
+    margin: clamp(5vw, 13vw, 67px);
+}
+
+/*
+ * .transition: 特定のテキスト要素 (例: ボタン内の文字など)
+ * font-sizeとmarginをvwで設定しつつ、clamp()で最小値と最大値を制御
+ */
+.transition {
+    text-align: center;
+    /*
+     * clamp(最小値, 推奨値 (相対値), 最大値)
+     * 例: 最小16px、推奨3vw（画面幅の3%）、最大36px
+     */
+    font-size: clamp(16px, 3vw, 36px);
+    /* marginもclamp()で制御 */
+    margin: clamp(5px, 1.2vw, 16px); /* 前回と同様の推奨値 */
+}
