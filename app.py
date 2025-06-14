@@ -9,9 +9,24 @@ load_dotenv()
 app = Flask(__name__)
 
 @app.route('/')
-def hello_html():
-    now = datetime.datetime.now()
-    return render_template('index.html', current_time=now)
+def index():
+    return render_template('index.html')
+
+@app.route('/play')
+def play():
+    return render_template('play.html')
+
+@app.route('/rule')
+def rule():
+    return render_template('rule.html')
+
+@app.route('/level')
+def level():
+    return render_template('level.html')
+
+@app.route('/result')
+def result():
+    return render_template('result')
 
 if __name__ == '__main__':
     app.run(debug=True)

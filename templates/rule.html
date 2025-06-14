@@ -4,26 +4,45 @@
         <meta charset="UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>Word Chain</title>
-		<link rel="stylesheet" href="../static/style_rule.css">
+		<link rel="stylesheet" href="{{ url_for('static', filename='style_rule.css') }}">
 	</head>
     <body>
         <header>
-			<input type="image" src="../images/Hamburger_Menu.png"/>
+            <button id="menu-toggle">
+				<img src="{{ url_for('static', filename='images/Hamburger_Menu.png') }}"/>
+			</button>
 			<h3>
-				<a href="">Word Chain</a>
+				<a href="{{ url_for('index') }}">Word Chain</a>
 			</h3>
 		</header>
-        <h2>ルール説明</h2>
-        <p>　このサイトでは、<strong>Gemini</strong>と<strong>「Word Chain（しりとり）」</strong>で遊ぶことができます。</p>
-        <p>　直前の単語の末尾と、あなたが入力する新しい単語の先頭が同じ文字になるようにしましょう。なお、単語の末尾・先頭とは、<strong>よみがな</strong>における末尾・先頭の文字のことです。</p>
-        <p>　末尾が「ん」で終わる単語・すでに使われたことがある単語が入力された場合、あなたの負けとなります。</p>
-        <nav>
-            <p class="transition">
-                <a href="">New Game</a>
-            </p>
-            <p class="transition">
-                <a href="">Back</a>
-            </p>
-        </nav>
+
+        <div id="side-menu" class="side-menu">
+			<button id="menu-toggle-slideout">
+				<img src="{{ url_for('static', filename='images/Cross.png') }}"/>
+			</button>
+			<ul>
+				<li><a href="{{ url_for('rule') }}">Rule</a></li>
+				<li><a href="{{ url_for('level') }}">Level</a></li>
+				<li><a href="{{ url_for('index') }}">Back</a></li>
+				<li><a href="{{ url_for('play') }}">New Game</a></li>
+			</ul>
+		</div>
+
+        <main>
+            <h2>ルール説明</h2>
+            <p>　このサイトでは、<strong>Gemini</strong>と<strong>「Word Chain（しりとり）」</strong>で遊ぶことができます。</p>
+            <p>　直前の単語の末尾と、あなたが入力する新しい単語の先頭が同じ文字になるようにしましょう。なお、単語の末尾・先頭とは、<strong>よみがな</strong>における末尾・先頭の文字のことです。</p>
+            <p>　末尾が「ん」で終わる単語・すでに使われたことがある単語が入力された場合、あなたの負けとなります。</p>
+            <nav>
+                <p class="transition">
+                    <a href="{{ url_for('play') }}">New Game</a>
+                </p>
+                <p class="transition">
+                    <a href="{{ url_for('index') }}">Back</a>
+                </p>
+            </nav>
+        </main>
+
+		<script src="{{ url_for('static', filename='side-menu.js') }}"></script>
     </body>
 </html>

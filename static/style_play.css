@@ -1,0 +1,40 @@
+@import url(./global.css);
+
+img {
+    display: block;
+    margin: 0 auto;
+}
+
+.last_user_word {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 400;
+    color: #000;
+}
+
+.Gemini_word {
+    text-align: center;
+    margin: 10px 0 25px 0;
+    font-size: clamp(24px, 9vw, 60px);
+    font-weight: 700;
+    color: #000;
+}
+
+.input-area {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.input-area input {
+    width: clamp(200px, 50vw, 400px);
+    height: 5vh;
+    border: none;
+    border-bottom: 3px solid #648DB3;
+    transition: 0.3s;
+}
+
+.input-area input:focus {
+    outline: none;
+    border-bottom: 3px solid #B2D8CE;
+}

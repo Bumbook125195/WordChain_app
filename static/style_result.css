@@ -1,0 +1,24 @@
+@import url(./global.css);
+
+h2 {
+    text-align: center;
+    margin: 150px 0 7vw 0;
+    font-size: clamp(20px, 7vw, 64px);
+    font-weight: 700;
+    color: #000;
+}
+
+h2 span {
+    font-size: clamp(30px, 10vw, 80px);
+    font-weight: 900;
+}
+
+nav {
+    margin: clamp(5vw, 13vw, 67px);
+}
+
+.transition {
+    text-align: center;
+    font-size: clamp(16px, 5vw, 40px);
+    margin: clamp(16px, 4vw, 32px);
+}
