@@ -21,14 +21,23 @@ p {
     margin-top: 50px;
 }
 
-.level_buttons {
-    margin-top: clamp(15px, 2vw, 30px);
+.level-buttons {
+    margin: clamp(15px, 2vw, 30px);
     display: flex;
     flex-flow: column;
     align-items: center;
 }
 
-.level_buttons input {
-    margin: clamp(5px, 1.2vw, 15px);
+.level-button {
+    margin: clamp(7px, 1.25vw, 15px);
     width: 25%;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.level-button img {
+    width: 100%;
+    height: 115%;
 }

@@ -38,3 +38,7 @@ img {
     outline: none;
     border-bottom: 3px solid #B2D8CE;
 }
+
+.game-message {
+    text-align: center;
+}

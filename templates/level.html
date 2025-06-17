@@ -1,47 +1,62 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<title>Word Chain</title>
-		<link rel="stylesheet" href="{{ url_for('static', filename='style_level.css') }}">
-	</head>
-	<body>
-		<header>
-			<button id="menu-toggle">
-				<img src="{{ url_for('static', filename='images/Hamburger_Menu.png') }}"/>
-			</button>
-			<h3>
-				<a href="{{ url_for('index') }}">Word Chain</a>
-			</h3>
-		</header>
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Word Chain</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style_level.css') }}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <button id="menu-toggle" type="button" aria-controls="side-menu" aria-expanded="false">
+                <img src="{{ url_for('static', filename='images/Hamburger_Menu.png') }}" alt="メニューを開く"/>
+            </button>
+            <h3>
+                <a href="{{ url_for('index') }}">Word Chain</a>
+            </h3>
+        </header>
 
-		<div id="side-menu" class="side-menu">
-			<button id="menu-toggle-slideout">
-				<img src="{{ url_for('static', filename='images/Cross.png') }}"/>
-			</button>
-			<ul>
-				<li><a href="{{ url_for('rule') }}">Rule</a></li>
-				<li><a href="{{ url_for('level') }}">Level</a></li>
-				<li><a href="{{ url_for('index') }}">Back</a></li>
-				<li><a href="{{ url_for('play') }}">New Game</a></li>
-			</ul>
-		</div>
+        <div id="side-menu" class="side-menu">
+            <button id="menu-toggle-slideout" type="button">
+                <img src="{{ url_for('static', filename='images/Cross.png') }}" alt="メニューを閉じる"/>
+            </button>
+            <ul>
+                <li><a href="{{ url_for('rule') }}">Rule</a></li>
+                <li><a href="{{ url_for('level') }}">Level</a></li>
+                <li><a href="{{ url_for('index') }}">Back</a></li>
+                <li><a href="{{ url_for('play') }}">New Game</a></li>
+            </ul>
+        </div>
 
-		<main>
-			<h2>対戦相手の難易度</h2>
-			<div class="level_buttons">
-				<input type="image" src="{{ url_for('static', filename='images/Off_Button_Easy.png') }}"/>
-				<input type="image" src="{{ url_for('static', filename='images/Off_Button_Medium.png') }}"/>
-				<input type="image" src="{{ url_for('static', filename='images/Off_Button_Hard.png') }}"/>
-			</div>
-			<nav>
-				<p class="transition">
-					<a href="{{ url_for('index') }}">Back</a>
-				</p>
-			</nav>
-		</main>
+        <main>
+            <h2>対戦相手の難易度</h2>
+            <div class="level-buttons">
+                <button id="easy-button" class="level-button" data-level="easy">
+                    <img src="{{ url_for('static', filename='images/Off_Button_Easy.png') }}" alt="Easyレベルを選択"/>
+                </button>
+                <button id="medium-button" class="level-button" data-level="medium">
+                    <img src="{{ url_for('static', filename='images/Off_Button_Medium.png') }}" alt="Mediumレベルを選択"/>
+                </button>
+                <button id="hard-button" class="level-button" data-level="hard">
+                    <img src="{{ url_for('static', filename='images/Off_Button_Hard.png') }}" alt="Hardレベルを選択"/>
+                </button>
+            </div>
+            <nav>
+                <p class="transition">
+                    <a href="{{ url_for('index') }}">Back</a>
+                </p>
+            </nav>
+        </main>
 
-		<script src="{{ url_for('static', filename='side-menu.js') }}"></script>
-	</body>
+        <script>
+            // JavaScript変数をHTML内で定義
+            const SELECT_LEVEL_URL = "{{ url_for('select_level') }}";
+            const PLAY_PAGE_URL = "{{ url_for('play') }}"; // レベル選択後、プレイページへ遷移するため
+        </script>
+        <script src="{{ url_for('static', filename='level.js') }}"></script>
+        <script src="{{ url_for('static', filename='side-menu.js') }}"></script>
+    </body>
 </html>

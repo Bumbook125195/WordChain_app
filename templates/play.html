@@ -1,48 +1,78 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8"/>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<title>Word Chain</title>
-		<link rel="stylesheet" href="{{ url_for('static', filename='style_play.css') }}">
-	</head>
-	<body>
-		<header>
-			<button id="menu-toggle">
-				<img src="{{ url_for('static', filename='images/Hamburger_Menu.png') }}"/>
-			</button>
-			<h3>
-				<a href="{{ url_for('index') }}">Word Chain</a>
-			</h3>
-		</header>
+    <head>
+        <meta charset="UTF-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Word Chain</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style_play.css') }}">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <button id="menu-toggle" type="button" aria-controls="side-menu" aria-expanded="false">
+                <img src="{{ url_for('static', filename='images/Hamburger_Menu.png') }}" alt="メニューを開く"/>
+            </button>
+            <h3>
+                <a href="{{ url_for('index') }}">Word Chain</a>
+            </h3>
+        </header>
 
-		<div id="side-menu" class="side-menu">
-			<button id="menu-toggle-slideout">
-				<img src="{{ url_for('static', filename='images/Cross.png') }}"/>
-			</button>
-			<ul>
-				<li><a href="{{ url_for('rule') }}">Rule</a></li>
-				<li><a href="{{ url_for('level') }}">Level</a></li>
-				<li><a href="{{ url_for('index') }}">Back</a></li>
-				<li><a href="{{ url_for('play') }}">New Game</a></li>
-			</ul>
-		</div>
+        <div id="side-menu" class="side-menu">
+            <button id="menu-toggle-slideout" type="button">
+                <img src="{{ url_for('static', filename='images/Cross.png') }}" alt="メニューを閉じる"/>
+            </button>
+            <ul>
+                <li><a href="{{ url_for('rule') }}">Rule</a></li>
+                <li><a href="{{ url_for('level') }}">Level</a></li>
+                <li><a href="{{ url_for('index') }}">Back</a></li>
+                <li><a href="{{ url_for('play') }}">New Game</a></li>
+            </ul>
+        </div>
 
-		<main>
-			<p class="last_user_word">
-				前回
-			</p>
-			<img src="{{ url_for('static', filename='images/Arrow.png') }}" />
-			<p class="Gemini_word">
-				相手
-			</p>
-			<img src="{{ url_for('static', filename='images/Arrow.png') }}" />
+        <main>
+            <div class="game-display">
+                <p class="last_user_word">
+                    <span id="current-word-display">しりとり</span>
+                </p>
+                <img src="{{ url_for('static', filename='images/Arrow.png') }}" alt="次の単語へ" class="arrow-image"/>
 
-			<div class="input-area">
-				<input type="text" id="word-input" placeholder="単語を入力" />
-			</div>
-		</main>
+                <p class="Gemini_word">
+                    <span id="gemini-word-display"></span>
+                </p>
+                <img src="{{ url_for('static', filename='images/Arrow.png') }}" alt="次の単語へ" class="arrow-image"/>
+            </div>
 
-		<script src="{{ url_for('static', filename='side-menu.js') }}"></script>
-	</body>
+            <p id="game-message" class="game-message"></p>
+
+            <p id="error-message" class="error-message" style="color: red; display: none;"></p>
+
+            <p id="gemini-error-display" class="gemini-error-message" style="color: orange; display: none;"></p>
+
+
+            <div class="input-area">
+                <input type="text" id="word-input" placeholder="単語を入力" />
+                <button hidden id="submit-button" >送信</button>
+            </div>
+
+            <button id="reset-button" class="reset-button">ゲームをリセット</button>
+
+            <div class="used-words-section">
+                <h3>使った単語:</h3>
+                <ul id="used-words-list" class="used-words-list">
+                </ul>
+            </div>
+        </main>
+
+        <script>
+            const SUBMIT_WORD_URL = "{{ url_for('submit_word') }}";
+            const GET_GEMINI_WORD_URL = "{{ url_for('get_gemini_word') }}";
+            const GET_GAME_STATUS_URL = "{{ url_for('get_game_status') }}";
+            const RESET_GAME_API_URL = "{{ url_for('reset_game_api') }}";
+            const RESULT_PAGE_URL = "{{ url_for('result') }}"; // 'result'関数に対応
+        </script>
+        <script src="{{ url_for('static', filename='play.js') }}"></script>
+        <script src="{{ url_for('static', filename='side-menu.js') }}"></script>
+    </body>
 </html>
