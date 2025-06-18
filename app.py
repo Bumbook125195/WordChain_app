@@ -44,19 +44,19 @@ GEMINI_PROMPTS = {
         'persona': '対小学生',
         'word_type': '簡単な日常単語、子供でも知っているような単語',
         'n_frequency': 0.3, 
-        'instruction': '小学生でもわかる簡単な単語で、かつ語尾が「ん」で終わらない単語を、、七パターン考え、その中からランダムに一つの単語を選択し、提案してください。提案する単語は必ず「ひらがな」とします。'
+        'instruction': '小学生でもわかる簡単な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'medium': {
         'persona': '対中学生',
         'word_type': '一般的な単語、社会や科学の基礎的な単語',
         'n_frequency': 0.2, 
-        'instruction': '中学生レベルの一般的な単語で、かつ語尾が「ん」で終わらない単語を、十五パターン考え、その中からランダムに一つの単語を選択し、提案してください。提案する単語は必ず「ひらがな」とします。'
+        'instruction': '中学生レベルの一般的な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'hard': {
         'persona': '対高校生',
         'word_type': '専門性の高い単語、歴史用語、科学用語等',
         'n_frequency': 0.1, 
-        'instruction': '高校生レベルの高度な単語で、かつ語尾が「ん」で終わらない単語を、二十パターン考え、その中からランダムに一つの単語を選択し、提案してください。提案する単語は必ず「ひらがな」とします。'
+        'instruction': '高校生レベルの高度な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     }
 }
 
@@ -219,11 +219,11 @@ def get_gemini_word():
     次に「{last_char}」から始まる単語を、以下の条件で1つだけ提案してください。
     - {level_config['instruction']}
     - すでに使われた単語リスト「{', '.join(state['used_words'])}」からは使わないでください。
-    - 余計な説明や前置き、句読点（例：「はい、単語は〜です。」や「。」）は不要で、**単語だけ**を答えてください。
+    - 余計な説明や前置き、句読点（例：「はい、単語は〜です。」や「。」）は不要で、**ひらがなだけ**で、ランダムに１つ答えてください。
     """
 
     if random.random() < level_config['n_frequency']:
-        prompt_final = prompt_base.replace('かつ語尾が「ん」で終わらない単語を提案してください。', '語尾が「ん」で終わる単語も提案して良いですが、**短く簡単な単語**を提案してください。')
+        prompt_final = prompt_base.replace('かつ語尾が「ん」で終わらない単語を提案してください。', '語尾が「ん」で終わる単語も提案して良いですが、**ひらがな**で、単語を提案してください。')
     else:
         prompt_final = prompt_base
 
@@ -232,7 +232,7 @@ def get_gemini_word():
     prompt_to_send = prompt_final
 
     try:
-        while True:
+        for attempt in range(5):
             response = model.generate_content(prompt_to_send)
             gemini_word = response.text.strip()
             gemini_word = re.sub(r'^[はい、そうです、\s]*[単語は、](「|『)?(.+?)(」|』)?(です)?(。)?$', r'\2', gemini_word)
@@ -241,7 +241,8 @@ def get_gemini_word():
             if re.fullmatch(r'[\u3041-\u309Fー]+', gemini_word):
                 break
 
-            prompt_to_send = extra_instruction
+            prompt_to_send = prompt_final + "\n\n" + extra_instruction
+            print(repr(gemini_word))
 
         # --- Geminiの単語のルールチェック ---
         # Geminiが単語を生成できなかった場合
