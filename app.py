@@ -236,7 +236,6 @@ def get_gemini_word():
 
     try:
         while attempts < max_attempts:
-        while True:
             response = model.generate_content(
                 prompt_to_send,
                 request_options=RequestOptions(timeout=10)
