@@ -136,10 +136,10 @@ def submit_word():
         save_game_state(state)
         return jsonify(state)
 
-    if user_word.lower() == 'リセット':
-        reset_game_state()
-        state = get_current_game_state()
-        return jsonify(state)
+    # if user_word.lower() == 'リセット':
+    #     reset_game_state()
+    #     state = get_current_game_state()
+    #     return jsonify(state)
 
     
     if not state['current_word']:

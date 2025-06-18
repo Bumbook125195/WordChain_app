@@ -1,13 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
     const wordInput = document.getElementById('word-input');
     const submitButton = document.getElementById('submit-button');
-    const resetButton = document.getElementById('reset-button');
+    // const resetButton = document.getElementById('reset-button');
     const currentWordSpan = document.getElementById('current-word-display');
     const geminiWordSpan = document.getElementById('gemini-word-display');
     const gameMessageP = document.getElementById('game-message');
     const errorMessageP = document.getElementById('error-message');
     const geminiErrorDisplayP = document.getElementById('gemini-error-display'); 
-    const usedWordsList = document.getElementById('used-words-list');
+    // const usedWordsList = document.getElementById('used-words-list');
 
     let isGameOver = false;
 
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             geminiWordSpan.textContent = ''; 
             gameMessageP.textContent = data.message;
             isGameOver = data.game_over;
-            updateUsedWordsList(data.used_words);
+            // updateUsedWordsList(data.used_words);
 
             
             if (data.gemini_error_message) {
@@ -107,14 +107,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateUsedWordsList(words) {
-        usedWordsList.innerHTML = '';
-        words.forEach(word => {
-            const li = document.createElement('li');
-            li.textContent = word;
-            usedWordsList.appendChild(li);
-        });
-    }
+    // function updateUsedWordsList(words) {
+    //     usedWordsList.innerHTML = '';
+    //     words.forEach(word => {
+    //         const li = document.createElement('li');
+    //         li.textContent = word;
+    //         usedWordsList.appendChild(li);
+    //     });
+    // }
 
     
     submitButton.addEventListener('click', () => {
@@ -131,9 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    resetButton.addEventListener('click', async () => {
-        await updateGameState('reset');
-    });
+    // resetButton.addEventListener('click', async () => {
+    //     await updateGameState('reset');
+    // });
 
     
     updateGameState('initial_load');

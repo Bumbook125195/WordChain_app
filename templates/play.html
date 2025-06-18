@@ -56,20 +56,20 @@
                 <button hidden id="submit-button" >送信</button>
             </div>
 
-            <button id="reset-button" class="reset-button">ゲームをリセット</button>
+            <!-- <button id="reset-button" class="reset-button">ゲームをリセット</button> -->
 
-            <div class="used-words-section">
+            <!-- <div class="used-words-section">
                 <h3>使った単語:</h3>
                 <ul id="used-words-list" class="used-words-list">
                 </ul>
-            </div>
+            </div> -->
         </main>
 
         <script>
             const SUBMIT_WORD_URL = "{{ url_for('submit_word') }}";
             const GET_GEMINI_WORD_URL = "{{ url_for('get_gemini_word') }}";
             const GET_GAME_STATUS_URL = "{{ url_for('get_game_status') }}";
-            const RESET_GAME_API_URL = "{{ url_for('reset_game_api') }}";
+            // {# const RESET_GAME_API_URL = "{{ url_for('reset_game_api') }}"; #}
             const RESULT_PAGE_URL = "{{ url_for('result') }}"; // 'result'関数に対応
         </script>
         <script src="{{ url_for('static', filename='play.js') }}"></script>
