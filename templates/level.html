@@ -35,13 +35,25 @@
             <h2>対戦相手の難易度</h2>
             <div class="level-buttons">
                 <button id="easy-button" class="level-button" data-level="easy">
-                    <img src="{{ url_for('static', filename='images/Off_Button_Easy.png') }}" alt="Easyレベルを選択"/>
+                    <img
+                        src="{{ url_for('static', filename='images/Off_Button_Easy.png') }}"
+                        data-off="{{ url_for('static', filename='images/Off_Button_Easy.png') }}"
+                        data-on="{{ url_for('static', filename='images/On_Button_Easy.png') }}"
+                        alt="Easyレベルを選択"/>
                 </button>
                 <button id="medium-button" class="level-button" data-level="medium">
-                    <img src="{{ url_for('static', filename='images/Off_Button_Medium.png') }}" alt="Mediumレベルを選択"/>
+                    <img
+                        src="{{ url_for('static', filename='images/Off_Button_Medium.png') }}"
+                        data-off="{{ url_for('static', filename='images/Off_Button_Medium.png') }}"
+                        data-on="{{ url_for('static', filename='images/On_Button_Medium.png') }}"
+                        alt="Mediumレベルを選択"/>
                 </button>
                 <button id="hard-button" class="level-button" data-level="hard">
-                    <img src="{{ url_for('static', filename='images/Off_Button_Hard.png') }}" alt="Hardレベルを選択"/>
+                    <img
+                        src="{{ url_for('static', filename='images/Off_Button_Hard.png') }}"
+                        data-off="{{ url_for('static', filename='images/Off_Button_Hard.png') }}"
+                        data-on="{{ url_for('static', filename='images/On_Button_Hard.png') }}"
+                        alt="Hardレベルを選択"/>
                 </button>
             </div>
             <nav>
@@ -54,7 +66,7 @@
         <script>
             // JavaScript変数をHTML内で定義
             const SELECT_LEVEL_URL = "{{ url_for('select_level') }}";
-            const PLAY_PAGE_URL = "{{ url_for('play') }}"; // レベル選択後、プレイページへ遷移するため
+            const GET_GAME_STATUS_URL = "{{ url_for('get_game_status') }}";
         </script>
         <script src="{{ url_for('static', filename='level.js') }}"></script>
         <script src="{{ url_for('static', filename='side-menu.js') }}"></script>
