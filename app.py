@@ -228,15 +228,23 @@ def get_gemini_word():
         prompt_final = prompt_base
 
     gemini_word = ""
+    extra_instruction = "必ず、ひらがなのみを用いて単語を回答してください"
+    prompt_to_send = prompt_final
 
     try:
-        response = model.generate_content(prompt_final)
-        gemini_word = response.text.strip()
-        gemini_word = re.sub(r'^[はい、そうです、\s]*[単語は、](「|『)?(.+?)(」|』)?(です)?(。)?$', r'\2', gemini_word)
-        gemini_word = re.sub(r'[「」『』（）。、\s]', '', gemini_word)
-        
-        
-        
+        while True:
+            response = model.generate_content(prompt_to_send)
+            gemini_word = response.text.strip()
+            gemini_word = re.sub(r'^[はい、そうです、\s]*[単語は、](「|『)?(.+?)(」|』)?(です)?(。)?$', r'\2', gemini_word)
+            gemini_word = re.sub(r'[「」『』（）。、\s]', '', gemini_word)
+
+            if re.fullmatch(r'[\u3041-\u309Fー]+', gemini_word):
+                break
+
+            prompt_to_send = extra_instruction
+
+        # --- Geminiの単語のルールチェック ---
+        # Geminiが単語を生成できなかった場合
         if not gemini_word:
             state['game_over'] = True
             state['message'] = "Geminiが有効な単語を生成できませんでした。あなたの勝ち！"
