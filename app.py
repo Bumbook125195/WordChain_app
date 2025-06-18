@@ -3,6 +3,7 @@ import re
 import datetime
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import google.generativeai as genai
+from google.generativeai.types import RequestOptions
 from dotenv import load_dotenv
 import random
 
@@ -233,7 +234,10 @@ def get_gemini_word():
 
     try:
         while True:
-            response = model.generate_content(prompt_to_send)
+            response = model.generate_content(
+                prompt_to_send,
+                request_options=RequestOptions(timeout=10)
+            )
             gemini_word = response.text.strip()
             gemini_word = re.sub(r'^[はい、そうです、\s]*[単語は、](「|『)?(.+?)(」|』)?(です)?(。)?$', r'\2', gemini_word)
             gemini_word = re.sub(r'[「」『』（）。、\s]', '', gemini_word)
