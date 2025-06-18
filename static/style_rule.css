@@ -1,13 +1,9 @@
-@import url(./global.css); /* グローバルなスタイルをインポート */
+@import url(./global.css); 
 
 h2 {
     text-align: center;
     margin: 0 0 7vw 0;
-    /*
-     * clamp(最小値, 推奨値 (相対値), 最大値)
-     * 例: 最小20px、推奨5vw（画面幅の5%）、最大64px
-     * 画面が狭いときは20pxまで縮み、広いときは64pxまで拡大を制限
-     */
+    
     font-size: clamp(20px, 5vw, 64px);
     font-weight: 900;
     color: #000;

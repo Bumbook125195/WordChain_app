@@ -6,12 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const geminiWordSpan = document.getElementById('gemini-word-display');
     const gameMessageP = document.getElementById('game-message');
     const errorMessageP = document.getElementById('error-message');
-    const geminiErrorDisplayP = document.getElementById('gemini-error-display'); // 新規追加
+    const geminiErrorDisplayP = document.getElementById('gemini-error-display'); 
     const usedWordsList = document.getElementById('used-words-list');
 
     let isGameOver = false;
 
-    // ゲームの状態をサーバーから取得・更新し、UIに反映する関数
+    
     async function updateGameState(source = 'initial_load') {
         let endpoint = GET_GAME_STATUS_URL;
         let method = 'GET';
@@ -29,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
             method = 'POST';
         }
 
-        // エラーメッセージとGeminiエラーメッセージをクリア
+        
         errorMessageP.textContent = "";
         errorMessageP.style.display = 'none';
-        geminiErrorDisplayP.textContent = ""; // Geminiエラーメッセージもクリア
+        geminiErrorDisplayP.textContent = ""; 
         geminiErrorDisplayP.style.display = 'none';
 
         try {
@@ -45,52 +45,52 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                // HTTPエラー（例: 500 Internal Server Error）の場合
+                
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
 
-            // UIの更新
+            
             currentWordSpan.textContent = data.current_word || 'しりとり';
-            geminiWordSpan.textContent = ''; // Geminiの表示は一旦クリア
+            geminiWordSpan.textContent = ''; 
             gameMessageP.textContent = data.message;
             isGameOver = data.game_over;
             updateUsedWordsList(data.used_words);
 
-            // Geminiのエラーメッセージがあれば表示
+            
             if (data.gemini_error_message) {
                 geminiErrorDisplayP.textContent = data.gemini_error_message;
                 geminiErrorDisplayP.style.display = 'block';
             }
 
-            // ゲームオーバーの場合
+            
             if (isGameOver) {
                 submitButton.disabled = true;
                 wordInput.disabled = true;
-                gameMessageP.style.color = 'red'; // ゲームオーバーメッセージを赤くする
-                // 結果ページにリダイレクト
+                gameMessageP.style.color = 'red'; 
+                
                 setTimeout(() => {
                     window.location.href = RESULT_PAGE_URL;
-                }, 10000); // 1.5秒後にリダイレクト
+                }, 10000); 
             } else {
                 submitButton.disabled = false;
                 wordInput.disabled = false;
-                gameMessageP.style.color = 'black'; // 通常メッセージは黒
+                gameMessageP.style.color = 'black'; 
                 wordInput.value = '';
 
-                // Geminiのターンであれば、Geminiの単語生成APIを呼び出す
+                
                 if (data.player_turn === 'gemini') {
                     gameMessageP.textContent = "Geminiが単語を考え中...";
-                    submitButton.disabled = true; // Geminiの思考中はボタン無効化
+                    submitButton.disabled = true; 
                     wordInput.disabled = true;
                     setTimeout(async () => {
                         await updateGameState('gemini_turn');
-                    }, 1000); // 1秒待ってからGeminiのターンを実行
+                    }, 1000); 
                 } else if (data.player_turn === 'user' && source === 'gemini_turn') {
-                    // Geminiが単語を生成し、今ユーザーのターンになった場合
-                    geminiWordSpan.textContent = data.current_word; // Geminiが出した単語を表示
-                    // ユーザーが最後に出した単語はused_wordsの最後から2番目
+                    
+                    geminiWordSpan.textContent = data.current_word; 
+                    
                     currentWordSpan.textContent = data.used_words[data.used_words.length - 2] || '（なし）';
                     gameMessageP.textContent = data.message;
                     submitButton.disabled = false;
@@ -116,11 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- イベントリスナーの登録 ---
+    
     submitButton.addEventListener('click', () => {
         errorMessageP.textContent = "";
         errorMessageP.style.display = 'none';
-        geminiErrorDisplayP.textContent = ""; // クリック時にGeminiエラーもクリア
+        geminiErrorDisplayP.textContent = ""; 
         geminiErrorDisplayP.style.display = 'none';
         updateGameState('user_submit');
     });
@@ -135,6 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
         await updateGameState('reset');
     });
 
-    // ページロード時の初期処理
+    
     updateGameState('initial_load');
 });

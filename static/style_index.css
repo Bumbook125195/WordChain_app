@@ -9,7 +9,7 @@ h1 {
 }
 
 nav {
-    margin-top: clamp(20px, 9.3vh, 100px); /* 最小20px、推奨9.3vh、最大100px（例）*/
+    margin-top: clamp(20px, 9.3vh, 100px); 
 }
 
 .transition {
