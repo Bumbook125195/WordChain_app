@@ -72,11 +72,11 @@ def save_game_state(state):
     session['game_state'] = state
 
 def reset_game_state():
-    """ゲーム状態を初期化する。"""
-    
-    session.pop('game_state', None) 
-    
+    """ゲーム状態を初期化するが、現在のレベルは維持する。"""
+
+    current_level = session.get('game_state', {}).get('level', DEFAULT_GAME_STATE['level'])
     session['game_state'] = DEFAULT_GAME_STATE.copy()
+    session['game_state']['level'] = current_level
 
 
 
