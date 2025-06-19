@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             
             currentWordSpan.textContent = data.current_word || 'しりとり';
-            geminiWordSpan.textContent = ''; 
+            geminiWordSpan.textContent = '---'; 
             gameMessageP.textContent = data.message;
             isGameOver = data.game_over;
             // updateUsedWordsList(data.used_words);
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 setTimeout(() => {
                     window.location.href = RESULT_PAGE_URL;
-                }, 10000); 
+                }, 5000); 
             } else {
                 submitButton.disabled = false;
                 wordInput.disabled = false;

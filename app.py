@@ -23,7 +23,7 @@ else:
     model = genai.GenerativeModel(
         'gemini-1.5-flash',
         generation_config={
-            "temperature": 0.9, 
+            "temperature": 0.7, 
             "max_output_tokens": 50, 
         }
     )
@@ -45,18 +45,21 @@ GEMINI_PROMPTS = {
         'persona': '対小学生',
         'word_type': '簡単な日常単語、子供でも知っているような単語',
         'n_frequency': 0.3, 
+        'again_frequency': 0.3, 
         'instruction': '小学生でもわかる簡単な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'medium': {
         'persona': '対中学生',
         'word_type': '一般的な単語、社会や科学の基礎的な単語',
         'n_frequency': 0.2, 
+        'again_frequency': 0.2, 
         'instruction': '中学生レベルの一般的な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'hard': {
         'persona': '対高校生',
         'word_type': '専門性の高い単語、歴史用語、科学用語等',
         'n_frequency': 0.1, 
+        'again_frequency': 0.1, 
         'instruction': '高校生レベルの高度な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     }
 }
@@ -66,6 +69,10 @@ def get_current_game_state():
     """現在のゲーム状態をセッションから取得する。なければ初期値を設定。"""
     if 'game_state' not in session:
         session['game_state'] = DEFAULT_GAME_STATE.copy()
+
+    current_level = session['game_state']['level']
+    print(f"現在の難易度: {current_level.upper()}")
+
     return session['game_state']
 
 def save_game_state(state):
@@ -144,6 +151,10 @@ def submit_word():
 
     
     if not state['current_word']:
+        if not user_word.startswith('り'):
+            state['message'] = "最初の単語は「り」から始めてください。もう一度入力してください。"
+            save_game_state(state)
+            return jsonify(state)
         state['current_word'] = user_word
         state['used_words'].append(user_word)
         
@@ -213,20 +224,27 @@ def get_gemini_word():
     level_config = GEMINI_PROMPTS.get(current_level_key, GEMINI_PROMPTS['easy'])
 
     last_char = state['current_word'][-1]
+    current_microsecond = datetime.datetime.now().microsecond
     
     prompt_base = f"""しりとりゲームをしています。
     あなたは今、{level_config['persona']}です。
     現在の単語は「{state['current_word']}」です。
     次に「{last_char}」から始まる単語を、以下の条件で1つだけ提案してください。
     - {level_config['instruction']}
-    - すでに使われた単語リスト「{', '.join(state['used_words'])}」からは使わないでください。
+    - すでに使われた単語リスト「{', '.join(state['used_words'])}」からは、絶対に使わないでください。
     - 余計な説明や前置き、句読点（例：「はい、単語は〜です。」や「。」）は不要で、**ひらがなだけ**で、ランダムに１つ答えてください。
+    - **多様な単語を生成するために、この情報を使って創造性を高めてください: {current_microsecond}**
     """
 
     if random.random() < level_config['n_frequency']:
-        prompt_final = prompt_base.replace('かつ語尾が「ん」で終わらない単語を提案してください。', '語尾が「ん」で終わる単語も提案して良いですが、**ひらがな**で、単語を提案してください。')
+        prompt_final = prompt_base.replace('かつ語尾が「ん」で終わらない単語を', '語尾が「ん」で終わる単語も提案して良いですが')
     else:
         prompt_final = prompt_base
+
+    if random.random() < level_config['again_frequency']:
+        prompt_final = prompt_final.replace('からは、絶対に使わないでください', 'から、使うことも可能です')
+    else:
+        pass
 
     gemini_word = ""
     extra_instruction = "必ず、ひらがなのみを用いて単語を回答してください"
@@ -242,8 +260,11 @@ def get_gemini_word():
             )
 
             gemini_word = response.text.strip()
-            gemini_word = re.sub(r'^[はい、そうです、\s]*(?:単語は、)?(「|『)?(.+?)(」|』)?(です)?(。)?$', r'\2', gemini_word)
-            gemini_word = re.sub(r'[「」『』（）。、\s]', '', gemini_word)
+            print(gemini_word)
+            gemini_word = re.sub(r'[^\u3040-\u309F\u30FC\u30A0-\u30FF]', '', gemini_word)
+
+            # gemini_word = re.sub(r'^[はい、そうです、\s]*(?:単語は、)?(「|『)?(.+?)(」|』)?(です)?(。)?$', r'\2', gemini_word)
+            # gemini_word = re.sub(r'[「」『』（）。、\s]', '', gemini_word)
 
             if re.fullmatch(r'[\u3041-\u309Fー]+', gemini_word):
                 break

@@ -39,16 +39,16 @@
                 <img src="{{ url_for('static', filename='images/Arrow.png') }}" alt="次の単語へ" class="arrow-image"/>
 
                 <p class="Gemini_word">
-                    <span id="gemini-word-display"></span>
+                    <span id="gemini-word-display">---</span>
                 </p>
                 <img src="{{ url_for('static', filename='images/Arrow.png') }}" alt="次の単語へ" class="arrow-image"/>
             </div>
 
             <p id="game-message" class="game-message"></p>
 
-            <p id="error-message" class="error-message" style="color: red; display: none;"></p>
+            <p id="error-message" class="error-message" style="color: red; display: none; text-align: center;"></p>
 
-            <p id="gemini-error-display" class="gemini-error-message" style="color: orange; display: none;"></p>
+            <p id="gemini-error-display" class="gemini-error-message" style="color: orange; display: none; text-align: center;"></p>
 
 
             <div class="input-area">
