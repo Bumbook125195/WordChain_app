@@ -139,8 +139,8 @@ def submit_word():
         save_game_state(state)
         return jsonify(state)
 
-    if not re.fullmatch(r'[\u3040-\u309F\u30FC\u30A0-\u30FF]+', user_word):
-        state['message'] = "ひらがなまたはカタカナで入力してください。"
+    if not re.fullmatch(r'[\u3040-\u309F\u30FC]+', user_word):
+        state['message'] = "ひらがなのみで入力してください。"
         save_game_state(state)
         return jsonify(state)
 
