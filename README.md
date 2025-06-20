@@ -4,6 +4,41 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
 
 -----
 
+## 🏗️ アプリの構成
+
+このアプリは、ユーザーがWebブラウザで操作する画面と、その裏でゲームのロジックやAIとの通信を処理するサーバーサイド（Flask）で構成されています。
+
+### 画面遷移図 (ツリー表記)
+
+アプリの主要な画面とその遷移は以下の通りです。
+
+```
+├── タイトル画面 (index.html)  --- アプリケーションの入り口
+│   ├── "Play"
+│   │   └── プレイ画面 (play.html) --- AIとのしりとり対戦
+│   │       ├── 単語入力
+│   │       ├── AIの単語生成
+│   │       └── ゲーム終了
+│   │           └── 結果画面 (result.html) --- 勝敗結果の表示
+│   │
+│   ├── "Rule"
+│   │   └── ルール説明画面 (rule.html) --- しりとりルールの表示
+│   │
+│   └── "Level"
+│       └── レベル選択画面 (level.html) --- AIの難易度選択
+│           ├── Easy (対小学生)
+│           ├── Medium (対中学生)
+│           └── Hard (対高校生)
+│
+└── (共通) ハンバーガーメニュー --- 各画面からアクセス可能なナビゲーション
+    ├── "Rule" (ルール説明画面へ)
+    ├── "Level" (レベル選択画面へ)
+    ├── "Back" (タイトル画面へ)
+    └── "New Game" (プレイ画面・ゲームリセット)
+```
+
+-----
+
 ## ✨ アプリの主な機能
 
   * **しりとりの基本ルール:** 日本語のしりとりの伝統的なルールでプレイできます。
@@ -12,8 +47,10 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
       * **Easy (対小学生):** AI は小学生のように、簡単で日常的な単語を使います。
       * **Medium (対中学生):** AI は中学生のように、一般的な単語や基礎的な社会・科学用語を使います。
       * **Hard (対高校生):** AI は高校生のように、ある程度複雑な単語等を使います。
-  * **レスポンシブデザイン:** デスクトップのサイズ変更に対応しています。スマホ画面には非対応です。
-  * **ハンバーガーメニュー:** ナビゲーションリンクに簡単にアクセスできます。
+  * **レスポンシブデザイン:** CSS におけるサイズ指定に `vw` や `vh` を使用することで、デスクトップのサイズ変更に対応しています。スマホ画面には非対応です。
+  * **ハンバーガーメニュー:** ナビゲーションリンクに簡単にアクセスできます。リセット機能は"New Game"にて実装。
+  
+  *非常に重要な仕様として、Word Chain App は、**複数人の同時アクセスに非対応です**。*
 
   [^1]: 応答される単語は「ひらがな」です。
 
@@ -49,12 +86,17 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
 
 ### ローカル開発環境のセットアップ
 
-1.  **リポジトリのクローン:**
+1.  **リポジトリのクローン・Gitの初期設定:**
 
     ```bash
     git clone https://github.com/Bumbook125195/WordChain_app.git
     cd WordChain_app
+
+    git config --global user.name "Your Name"
+    git config --global user.email "your.email@example.com"
     ```
+
+    `Your Name` と `your.email@example.com` は、任意の値を取ります。
 
 2.  **仮想環境の作成と有効化:**
 
@@ -94,7 +136,7 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
 
 -----
 
-### クラウドサーバーへのデプロイ (例: さくらのクラウド)
+### クラウドサーバーへのデプロイ
 
 ここでは、基本的な Linux サーバー (Ubuntu を想定) と SSH アクセスを前提としています。
 
@@ -113,13 +155,18 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
         # もし python3.10-venv が具体的に必要であれば: sudo apt install python3.10-venv
         ```
 
-3.  **サーバー上でリポジトリをクローン:**
+3.  **サーバー上でリポジトリをクローン・Gitの初期設定:**
 
     ```bash
     cd ~ # または、お好みのデプロイディレクトリ (例: /var/www/)
     mkdir WordChain_app && cd WordChain_app
     git clone https://github.com/Bumbook125195/WordChain_app.git .
+
+    git config --global user.name "Your Name"
+    git config --global user.email "your.email@example.com"
     ```
+
+    `Your Name` と `your.email@example.com` は、任意の値を取ります。
 
 4.  **サーバー上で仮想環境をセットアップし、依存関係をインストール:**
 
@@ -151,24 +198,24 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
         sudo firewall-cmd --reload
         ```
 
-7.  **Flask アプリケーションの実行:**
+7.  **Flask アプリケーションのデーモン化:**
 
     ```bash
     # アプリケーションディレクトリに移動 (もし移動していなければ)
     cd ~/WordChain_app
     # 仮想環境を有効化
     source venv/bin/activate
-    # アプリを実行 (このコマンドは SSH セッションを占有します)
-    python3 app.py
+    # アプリをバックグランドで実行・デーモン化
+    nohup python3 app.py &
     ```
 
-    *アプリは `http://あなたのサーバーのIPアドレス:5000` からアクセスできるようになります。SSH セッションを開いたままにしておく必要があります。*
-
------
-
-## 🚀 ライブデモ
-
-[Word Chain](http://163.43.114.130:5000/)
+    *アプリは `http://あなたのサーバーのIPアドレス:5000` からアクセスできるようになります。アプリを停止する際は、以下のコマンドを実行してください。*
+    ```bash
+    # プロセスのPIDを特定する
+    sudo lsof -i :5000
+    # プロセスキル
+    sudo kill -9 <PID>
+    ```
 
 -----
 
@@ -177,17 +224,32 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
   * **バックエンド:** Python, Flask
   * **AI:** Google Gemini API (`google-generativeai` SDK)
   * **フロントエンド:** HTML, CSS, JavaScript (Jinja2 テンプレート)
-  * **デプロイ:** Linux (Ubuntu/CentOS), 仮想環境 (`venv`)
+  * **デプロイ:** [さくらのクラウド](https://cloud.sakura.ad.jp/?gad_source=1&gad_campaignid=197994764&gbraid=0AAAAADrEfxSHVDMr0g9M-LRlp1C_C9r0m&gclid=CjwKCAjw6s7CBhACEiwAuHQckrLVCDtdM7CTv7QMVv0mKto2PcK6MT2ginQ_r6Oj9Y1GsRlZPr3VQhoCI8YQAvD_BwE)(Ubuntu 22.04.5 LTS), 仮想環境 (`venv`)
   * **バージョン管理:** Git, GitHub
 
 -----
 
-## 💡 今後の改善点
+## 💡 参考にしたWebサイト
 
-  * 本番環境での安定性とセキュリティのために、WSGI サーバー (Gunicorn) とリバースプロキシ (Nginx) を導入する。
-  * 複数ユーザー対応と状態の永続化のために、ゲーム状態をデータベース (例: SQLite, PostgreSQL) に保存する。
-  * Gemini の単語生成ロジックとエラー処理をさらに洗練させる。
-  * よりインタラクティブな UI 要素やアニメーションを追加する。
-  * WebSocket を使用してプレイヤー vs プレイヤーの対戦モードを実装する。
+- **プロトタイプ・UI 作成:** [Figma](https://www.figma.com/files/team/1513742474876045122/recents-and-sharing?fuid=1513742470753510226)
+- **Figma の利用方法:** [すぐできる、figmaプロトタイプの作り方と考え方①-ボタン-](https://note.com/masumit_5734/n/na377295a2035)
+- **HTML / CSS の記述:** [MDN Web Docs](https://developer.mozilla.org/ja/)
+- **Python の記述:** [Gemini](https://gemini.google.com/)
+
+-----
+
+## 🤖 AIの使用
+
+- **要件整理:** Gemini
+- **`app.py` のひな型生成:** Gemini
+- **`README.md` のひな型生成:** Gemini
+- **機能追加・デバッグ:** ChatGPT Codex
+- **対戦相手:** Gemini API (gemini-1.5-flash)
+
+-----
+
+## 🚀 ライブデモ
+
+[Word Chain](http://163.43.114.130:5000/)
 
 -----
