@@ -52,18 +52,18 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
 1.  **リポジトリのクローン:**
 
     ```bash
-    git clone https://github.com/your_github_username/WordChain_app.git
+    git clone https://github.com/Bumbook125195/WordChain_app.git
     cd WordChain_app
     ```
-
-    *( `your_github_username` はご自身の GitHub ユーザー名に置き換えてください)*
 
 2.  **仮想環境の作成と有効化:**
 
     ```bash
     python3 -m venv venv
-    # Windows の場合: .\venv\Scripts\activate
-    # macOS/Linux/WSL の場合: source venv/bin/activate
+    # Windows の場合: 
+    .\venv\Scripts\activate
+    # macOS/Linux/WSL の場合: 
+    source venv/bin/activate
     ```
 
 3.  **依存関係のインストール:**
@@ -71,8 +71,6 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
     ```bash
     pip install -r requirements.txt
     ```
-
-    *`requirements.txt` に `Flask` と `google-generativeai` 、`python-dotenv` が含まれていることを確認してください。*
 
 4.  **`.env` ファイルの作成:**
     プロジェクトのルートディレクトリ ( `app.py` と同じ階層) に `.env` というファイルを作成し、API キーなどを設定します。
@@ -120,7 +118,7 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
     ```bash
     cd ~ # または、お好みのデプロイディレクトリ (例: /var/www/)
     mkdir WordChain_app && cd WordChain_app
-    git clone https://github.com/your_github_username/WordChain_app.git .
+    git clone https://github.com/Bumbook125195/WordChain_app.git .
     ```
 
 4.  **サーバー上で仮想環境をセットアップし、依存関係をインストール:**
@@ -135,7 +133,7 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
     `.env` ファイルは Git で管理されないため、**サーバー上で手動で作成**する必要があります。
 
     ```bash
-    nano .env
+    touch .env
     ```
 
     ローカルの `.env` と同じ内容 (実際の `FLASK_SECRET_KEY` と `GOOGLE_API_KEY`) を記述し、保存します。
@@ -170,7 +168,7 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
 
 ## 🚀 ライブデモ
 
-[ここにデプロイされた Web アプリの URL を貼り付けてください] *(例: `http://あなたのサーバーのIPアドレス:5000`)*
+[Word Chain](http://163.43.114.130:5000/)
 
 -----
 
