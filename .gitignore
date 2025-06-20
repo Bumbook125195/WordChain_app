@@ -8,3 +8,5 @@ __pycache__/
 # 環境変数ファイル
 *.env
 
+# Webサーバのログファイル
+nohup.out
