@@ -42,21 +42,21 @@ DEFAULT_GAME_STATE = {
 
 GEMINI_PROMPTS = {
     'easy': {
-        'persona': '対小学生',
+        'persona': '日本語能力試験N5レベル',
         'word_type': '簡単な日常単語、子供でも知っているような単語',
         'n_frequency': 0.3, 
         'again_frequency': 0.3, 
         'instruction': '小学生でもわかる簡単な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'medium': {
-        'persona': '対中学生',
+        'persona': '日本語能力試験N3レベル',
         'word_type': '一般的な単語、社会や科学の基礎的な単語',
         'n_frequency': 0.2, 
         'again_frequency': 0.2, 
         'instruction': '中学生レベルの一般的な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'hard': {
-        'persona': '対高校生',
+        'persona': '日本語能力試験N1レベル',
         'word_type': '専門性の高い単語、歴史用語、科学用語等',
         'n_frequency': 0.1, 
         'again_frequency': 0.1, 
@@ -94,7 +94,6 @@ def index():
 
 @app.route('/play')
 def play():
-    
     reset_game_state() 
     return render_template('play.html')
 
