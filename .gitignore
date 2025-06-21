@@ -10,3 +10,6 @@ __pycache__/
 
 # Webサーバのログファイル
 log/
+
+# 開発者向け文書
+README_FOR_DEVELOPER.md
