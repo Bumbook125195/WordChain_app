@@ -65,6 +65,18 @@ GEMINI_PROMPTS = {
 }
 
 
+SMALL_TO_BIG = {
+    'ぁ': 'あ', 'ぃ': 'い', 'ぅ': 'う', 'ぇ': 'え', 'ぉ': 'お',
+    'ゃ': 'や', 'ゅ': 'ゆ', 'ょ': 'よ', 'っ': 'つ', 'ゎ': 'わ',
+    'ゕ': 'か', 'ゖ': 'け',
+}
+
+
+def normalize_char(ch: str) -> str:
+    """小文字のひらがなを大文字に変換する"""
+    return SMALL_TO_BIG.get(ch, ch)
+
+
 def get_current_game_state():
     """現在のゲーム状態をセッションから取得する。なければ初期値を設定。"""
     if 'game_state' not in session:
@@ -163,7 +175,8 @@ def submit_word():
             session['game_result'] = {'message': '負け', 'reason': '「ん」で終わった'}
             state['redirect_to_result'] = True
         else:
-            state['message'] = f"OK！次は「{user_word[-1]}」から始まる単語を入力してください。"
+            next_char = normalize_char(user_word[-1])
+            state['message'] = f"OK！次は「{next_char}」から始まる単語を入力してください。"
             state['player_turn'] = 'gemini'
         
         save_game_state(state)
@@ -171,8 +184,8 @@ def submit_word():
 
 
     
-    last_char = state['current_word'][-1]
-    first_char = user_word[0]
+    last_char = normalize_char(state['current_word'][-1])
+    first_char = normalize_char(user_word[0])
 
     if last_char != first_char:
         state['message'] = f"「{state['current_word']}」の次は「{last_char}」です。「{user_word}」はルールに合っていません。もう一度入力してください。"
@@ -188,7 +201,8 @@ def submit_word():
     else:
         state['current_word'] = user_word
         state['used_words'].append(user_word)
-        state['message'] = f"OK！次は「{user_word[-1]}」から始まる単語を入力してください。"
+        next_char = normalize_char(user_word[-1])
+        state['message'] = f"OK！次は「{next_char}」から始まる単語を入力してください。"
         state['player_turn'] = 'gemini'
 
     save_game_state(state)
@@ -222,7 +236,7 @@ def get_gemini_word():
     current_level_key = state.get('level', 'easy')
     level_config = GEMINI_PROMPTS.get(current_level_key, GEMINI_PROMPTS['easy'])
 
-    last_char = state['current_word'][-1]
+    last_char = normalize_char(state['current_word'][-1])
     current_microsecond = datetime.datetime.now().microsecond
     
     prompt_base = f"""しりとりゲームをしています。
@@ -283,12 +297,12 @@ def get_gemini_word():
             state['current_word'] = '---'
             state['gemini_error_message'] = "Geminiが単語を生成できませんでした。" 
         
-        elif not gemini_word.startswith(last_char):
+        elif normalize_char(gemini_word[0]) != last_char:
             state['game_over'] = True
             state['message'] = f"Geminiが「{gemini_word}」とルール違反しました（「{last_char}」から始まるはず）。あなたの勝ち！"
             session['game_result'] = {'message': '勝ち', 'reason': 'Geminiがルール違反'}
             state['current_word'] = gemini_word
-            state['gemini_error_message'] = f"Geminiがルール違反: 「{gemini_word}」（期待:「{last_char}」から）" 
+            state['gemini_error_message'] = f"Geminiがルール違反: 「{gemini_word}」（期待:「{last_char}」から）"
         
         elif gemini_word in state['used_words']:
             state['game_over'] = True
@@ -307,7 +321,8 @@ def get_gemini_word():
             
             state['current_word'] = gemini_word
             state['used_words'].append(gemini_word)
-            state['message'] = f"Gemini: 「{gemini_word}」！次は「{gemini_word[-1]}」から始まる単語を入力してください。"
+            next_char = normalize_char(gemini_word[-1])
+            state['message'] = f"Gemini: 「{gemini_word}」！次は「{next_char}」から始まる単語を入力してください。"
             state['player_turn'] = 'user' 
 
     except Exception as e:
