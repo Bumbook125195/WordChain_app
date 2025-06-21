@@ -8,8 +8,5 @@ __pycache__/
 # 環境変数ファイル
 *.env
 
-# Webサーバのログファイル
-log/
-
-# 開発者向け文書
-README_FOR_DEVELOPER.md
+# Unix ドメインソケット
+WordChain.sock

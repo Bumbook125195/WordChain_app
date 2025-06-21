@@ -50,8 +50,6 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
   * **レスポンシブデザイン:** CSS におけるサイズ指定に `vw` や `vh` を使用することで、デスクトップのサイズ変更に対応しています。スマホ画面には非対応です。
   * **ハンバーガーメニュー:** ナビゲーションリンクに簡単にアクセスできます。リセット機能は"New Game"にて実装。
   
-  *非常に重要な仕様として、Word Chain App は、**複数人の同時アクセスに非対応です**。*
-
   [^1]: 応答される単語は「ひらがな」です。
 
 -----
@@ -136,7 +134,7 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
 
 -----
 
-### クラウドサーバーへのデプロイ
+### クラウドサーバーへのデプロイと運用 (Nginx + Gunicorn)
 
 ここでは、基本的な Linux サーバー (Ubuntu を想定) と SSH アクセスを前提としています。
 
@@ -148,17 +146,17 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
 
 2.  **サーバー環境の準備:**
 
-      * Python 3、`venv`、`pip`、Git が未インストールの場合はインストールします:
+      * Python 3、`venv`、`pip`、Git、**Nginx**、**Gunicorn** が未インストールの場合はインストールします:
         ```bash
         sudo apt update
-        sudo apt install python3 python3-venv python3-pip git
-        # もし python3.10-venv が具体的に必要であれば: sudo apt install python3.10-venv
+        sudo apt install python3 python3-venv python3-pip git nginx
+        # Gunicorn は、のちに pip でインストール
         ```
 
 3.  **サーバー上でリポジトリをクローン・Gitの初期設定:**
 
     ```bash
-    cd ~ # または、お好みのデプロイディレクトリ (例: /var/www/)
+    cd ~
     mkdir WordChain_app && cd WordChain_app
     git clone https://github.com/Bumbook125195/WordChain_app.git .
 
@@ -180,42 +178,115 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
     `.env` ファイルは Git で管理されないため、**サーバー上で手動で作成**する必要があります。
 
     ```bash
-    touch .env
+    vim .env
     ```
 
     ローカルの `.env` と同じ内容 (実際の `FLASK_SECRET_KEY` と `GOOGLE_API_KEY`) を記述し、保存します。
 
-6.  **ポート 5000 を許可するファイアウォール設定:**
+6.  **Nginx の設定:**
+    Nginx を Webサーバーとして設定し、Flask アプリ (Gunicorn) へのリバースプロキシを行います。
+
+    ```bash
+    sudo vim /etc/nginx/sites-available/WordChain_app
+    ```
+
+    以下の内容を貼り付けます。
+
+    ```nginx
+    server {
+        listen 80;
+        server_name YOUR_SERVER_IP_OR_DOMAIN_NAME;
+
+        # 静的ファイル (CSS, JS, 画像) の配信
+        location /static {
+            alias /home/YOUR_USER_NAME/WordChain_app/static;
+        }
+
+        # Flaskアプリ (Gunicorn) へのリバースプロキシ
+        location / {
+            proxy_pass http://unix:/home/YOUR_USER_NAME/WordChain_app/WordChain.sock;
+
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    ```
+
+      * `YOUR_SERVER_IP_OR_DOMAIN_NAME`：あなたのサーバーのグローバルIPアドレス。
+      * `YOUR_USER_NAME`： あなたのユーザー名。
+
+    設定ファイルを有効化し、Nginx[^3] を再起動します。
+
+    ```bash
+    # シンボリックリンクの作成
+    sudo ln -s /etc/nginx/sites-available/WordChain_app /etc/nginx/sites-enabled/
+    # Nginxのデフォルト設定ファイルの削除
+    sudo rm /etc/nginx/sites-enabled/default
+    # Nginxの設定ファイルを構文チェック
+    sudo nginx -t
+    # Nginxの再起動（このコマンドは `/etc/nginx/sites-available/WordChain_app` の変更後に必ず実行される必要があります。）
+    sudo systemctl restart nginx
+    ```
+
+    [^3]: Nginx のプログラムが、Unix ドメインソケットに接続するには、`/` から `/home/YOUR_USER_NAME/WordChain_app/WordChain.sock` 間の**ディレクトリすべてに x 権限**が必要です。他にも、パーミッションによる問題が起こりえます。デバッグ時には、`sudo tail -f /var/log/nginx/error.log` を参照することを推奨します。
+
+7.  **Systemd サービスの設定 (Gunicorn のデーモン化):**
+    Gunicorn (Flask アプリ) をバックグラウンドで起動し続け、サーバー起動時に自動で立ち上がるように Systemd を設定します。
+
+    ```bash
+    sudo vim /etc/systemd/system/WordChain.service
+    ```
+
+    以下の内容を貼り付けます。
+
+    ```ini
+    [Unit]
+    Description=Gunicorn instance for WordChain App
+    After=network.target
+
+    [Service]
+    User=YOUR_USER_NAME
+    Group=www-data
+    WorkingDirectory=/home/YOUR_USER_NAME/WordChain_app
+    ExecStart=/home/YOUR_USER_NAME/WordChain_app/venv/bin/gunicorn --workers 3 --bind unix:/home/YOUR_USER_NAME/WordChain_app/WordChain.sock --umask 007 app:app
+    
+    Restart=on-failure
+    StandardOutput=syslog
+    StandardError=syslog
+    SyslogIdentifier=WordChain
+
+    [Install]
+    WantedBy=multi-user.target
+    ```
+
+      * `Group`：Nginx がアクセスできるグループ (Ubuntu なら `www-data`) 。
+
+    Systemd デーモンをリロードし、サービスを開始・有効化します。
+
+    ```bash
+    sudo systemctl daemon-reload
+    sudo systemctl start WordChain
+    # Gunicorn サービスを停止するコマンドも、補足として以下に示します。
+    # sudo systemctl stop WordChain
+    sudo systemctl enable WordChain
+    sudo systemctl status WordChain 
+    # 状態が active (running) であることを確認
+    ```
+
+8.  **ファイアウォールの設定:**
+    標準の HTTP ポート (80番) を開放します。5000番ポートは、Nginx が内部的に利用するため、外部公開は不要です。
 
       * **Ubuntu (UFW の場合):**
         ```bash
-        sudo ufw allow 5000/tcp
-        sudo ufw enable # UFW がアクティブでない場合
-        ```
-      * **CentOS (firewalld の場合):**
-        ```bash
-        sudo firewall-cmd --permanent --add-port=5000/tcp
-        sudo firewall-cmd --reload
+        sudo ufw allow 80/tcp
+        sudo ufw status
+        # OpenSSH の設定が無効になってしまった場合:
+        # sudo ufw allow 22/tcp
         ```
 
-7.  **Flask アプリケーションのデーモン化:**
-
-    ```bash
-    # アプリケーションディレクトリに移動 (もし移動していなければ)
-    cd ~/WordChain_app
-    # 仮想環境を有効化
-    source venv/bin/activate
-    # アプリをバックグランドで実行・デーモン化
-    nohup python3 app.py &
-    ```
-
-    *アプリは `http://あなたのサーバーのIPアドレス:5000` からアクセスできるようになります。アプリを停止する際は、以下のコマンドを実行してください。*
-    ```bash
-    # プロセスのPIDを特定する
-    sudo lsof -i :5000
-    # プロセスキル
-    sudo kill -9 <PID>
-    ```
+アプリは `http://あなたのサーバーのIPアドレス/` からアクセスできるようになります。なお、アプリログの確認は `sudo journalctl -u WordChain -f` で可能です。
 
 -----
 
@@ -224,7 +295,8 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
   * **バックエンド:** Python, Flask
   * **AI:** Google Gemini API (`google-generativeai` SDK)
   * **フロントエンド:** HTML, CSS, JavaScript (Jinja2 テンプレート)
-  * **デプロイ:** [さくらのクラウド](https://cloud.sakura.ad.jp/?gad_source=1&gad_campaignid=197994764&gbraid=0AAAAADrEfxSHVDMr0g9M-LRlp1C_C9r0m&gclid=CjwKCAjw6s7CBhACEiwAuHQckrLVCDtdM7CTv7QMVv0mKto2PcK6MT2ginQ_r6Oj9Y1GsRlZPr3VQhoCI8YQAvD_BwE)(Ubuntu 22.04.5 LTS), 仮想環境 (`venv`)
+  * **デプロイ:** [さくらのクラウド](https://cloud.sakura.ad.jp/?gad_source=1&gad_campaignid=197994764&gbraid=0AAAAADrEfxSHVDMr0g9M-LRlp1C_C9r0m&gclid=CjwKCAjw6s7CBhACEiwAuHQckrLVCDtdM7CTv7QMVv0mKto2PcK6MT2ginQ_r6Oj9Y1GsRlZPr3VQhoCI8YQAvD_BwE)(Ubuntu 22.04.5 LTS), 仮想環境 (`venv`), **Nginx**, **Gunicorn**, **Systemd**
+
   * **バージョン管理:** Git, GitHub
 
 -----
@@ -234,7 +306,6 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
 - **プロトタイプ・UI 作成:** [Figma](https://www.figma.com/files/team/1513742474876045122/recents-and-sharing?fuid=1513742470753510226)
 - **Figma の利用方法:** [すぐできる、figmaプロトタイプの作り方と考え方①-ボタン-](https://note.com/masumit_5734/n/na377295a2035)
 - **HTML / CSS の記述:** [MDN Web Docs](https://developer.mozilla.org/ja/)
-- **Python の記述:** [Gemini](https://gemini.google.com/)
 
 -----
 
@@ -245,11 +316,12 @@ Word Chain App へようこそ！このアプリは、Google の Gemini を搭�
 - **`README.md` のひな型生成:** Gemini
 - **機能追加・デバッグ:** ChatGPT Codex
 - **対戦相手:** Gemini API (gemini-1.5-flash)
+- **Nginx・Gunicorn による運用:** Gemini
 
 -----
 
 ## 🚀 ライブデモ
 
-[Word Chain](http://163.43.114.130:5000/)
+[Word Chain](http://163.43.114.130/)
 
 -----
