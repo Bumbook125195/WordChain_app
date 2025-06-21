@@ -23,7 +23,7 @@ else:
     model = genai.GenerativeModel(
         'gemini-1.5-flash',
         generation_config={
-            "temperature": 0.7, 
+            "temperature": 0.4, 
             "max_output_tokens": 50, 
         }
     )
@@ -44,23 +44,23 @@ GEMINI_PROMPTS = {
     'easy': {
         'persona': '日本語能力試験N5レベル',
         'word_type': '簡単な日常単語、子供でも知っているような単語',
-        'n_frequency': 0.3, 
+        'n_frequency': 0.2, 
         'again_frequency': 0.3, 
-        'instruction': '小学生でもわかる簡単な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
+        'instruction': '日本語能力試験N5レベルの単語で、かつ語尾が**絶対に**「ん」で終わらない単語を、提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'medium': {
         'persona': '日本語能力試験N3レベル',
         'word_type': '一般的な単語、社会や科学の基礎的な単語',
-        'n_frequency': 0.2, 
-        'again_frequency': 0.2, 
-        'instruction': '中学生レベルの一般的な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
+        'n_frequency': 0.1, 
+        'again_frequency': 0.1, 
+        'instruction': '日本語能力試験N3レベルの単語で、かつ語尾が**絶対に**「ん」で終わらない単語を、提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'hard': {
         'persona': '日本語能力試験N1レベル',
         'word_type': '専門性の高い単語、歴史用語、科学用語等',
-        'n_frequency': 0.1, 
-        'again_frequency': 0.1, 
-        'instruction': '高校生レベルの高度な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
+        'n_frequency': 0.05, 
+        'again_frequency': 0.05, 
+        'instruction': '日本語能力試験N1レベルの単語で、かつ語尾が**絶対に**「ん」で終わらない単語を、提案してください。提案する単語は必ず「ひらがな」とします。'
     }
 }
 
@@ -250,15 +250,15 @@ def get_gemini_word():
     prompt_base = f"""しりとりゲームをしています。
     あなたは今、{level_config['persona']}です。
     現在の単語は「{state['current_word']}」です。
-    次に「{last_char}」から始まる単語を、以下の条件で1つだけ提案してください。
+    以下の条件に忠実に従って、「{last_char}」から始まる単語を、1つだけ提案してください。
     - {level_config['instruction']}
     - すでに使われた単語リスト「{', '.join(state['used_words'])}」からは、絶対に使わないでください。
-    - 余計な説明や前置き、句読点（例：「はい、単語は〜です。」や「。」）は不要で、**ひらがなだけ**で、ランダムに１つ答えてください。
-    - **多様な単語を生成するために、この情報を使って創造性を高めてください: {current_microsecond}**
+    - 余計な説明や前置き、句読点（例：「はい、単語は〜です。」や「。」）は不要で、**ひらがな**のみで、答えてください。
+    - **多様**な単語を生成するために、次の情報を独自解釈して、単語を生成してください: {current_microsecond}
     """
 
     if random.random() < level_config['n_frequency']:
-        prompt_final = prompt_base.replace('かつ語尾が「ん」で終わらない単語を', '語尾が「ん」で終わる単語も提案して良いですが')
+        prompt_final = prompt_base.replace('かつ語尾が**絶対に**「ん」で終わらない単語を', '語尾が「ん」で終わる単語も提案して良いですが')
     else:
         prompt_final = prompt_base
 
@@ -280,6 +280,7 @@ def get_gemini_word():
                 request_options=RequestOptions(timeout=10)
             )
 
+            print(prompt_to_send)
             gemini_word = response.text.strip()
             print(gemini_word)
             gemini_word = re.sub(r'[^\u3040-\u309F\u30FC\u30A0-\u30FF]', '', gemini_word)
