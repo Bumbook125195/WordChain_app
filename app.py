@@ -23,7 +23,7 @@ else:
     model = genai.GenerativeModel(
         'gemini-1.5-flash',
         generation_config={
-            "temperature": 0.4, 
+            "temperature": 0.2, 
             "max_output_tokens": 50, 
         }
     )
