@@ -9,4 +9,4 @@ __pycache__/
 *.env
 
 # Webサーバのログファイル
-nohup.out
+log/
