@@ -42,27 +42,47 @@ DEFAULT_GAME_STATE = {
 
 GEMINI_PROMPTS = {
     'easy': {
-        'persona': '対小学生',
+        'persona': '日本語能力試験N5レベル',
         'word_type': '簡単な日常単語、子供でも知っているような単語',
         'n_frequency': 0.3, 
         'again_frequency': 0.3, 
         'instruction': '小学生でもわかる簡単な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'medium': {
-        'persona': '対中学生',
+        'persona': '日本語能力試験N3レベル',
         'word_type': '一般的な単語、社会や科学の基礎的な単語',
         'n_frequency': 0.2, 
         'again_frequency': 0.2, 
         'instruction': '中学生レベルの一般的な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     },
     'hard': {
-        'persona': '対高校生',
+        'persona': '日本語能力試験N1レベル',
         'word_type': '専門性の高い単語、歴史用語、科学用語等',
         'n_frequency': 0.1, 
         'again_frequency': 0.1, 
         'instruction': '高校生レベルの高度な単語で、かつ語尾が「ん」で終わらない単語を、**多様に**提案してください。提案する単語は必ず「ひらがな」とします。'
     }
 }
+
+
+SMALL_TO_BIG = {
+    'ぁ': 'あ', 'ぃ': 'い', 'ぅ': 'う', 'ぇ': 'え', 'ぉ': 'お',
+    'ゃ': 'や', 'ゅ': 'ゆ', 'ょ': 'よ', 'っ': 'つ', 'ゎ': 'わ',
+    'ゕ': 'か', 'ゖ': 'け',
+}
+
+
+def normalize_char(ch: str) -> str:
+    """小文字のひらがなを大文字に変換する"""
+    return SMALL_TO_BIG.get(ch, ch)
+
+
+def last_effective_char(word: str) -> str:
+    """単語末尾の長音記号を無視して最後の文字を取得する"""
+    word = re.sub("ー+$", "", word)
+    if not word:
+        return ""
+    return normalize_char(word[-1])
 
 
 def get_current_game_state():
@@ -94,7 +114,6 @@ def index():
 
 @app.route('/play')
 def play():
-    
     reset_game_state() 
     return render_template('play.html')
 
@@ -164,7 +183,8 @@ def submit_word():
             session['game_result'] = {'message': '負け', 'reason': '「ん」で終わった'}
             state['redirect_to_result'] = True
         else:
-            state['message'] = f"OK！次は「{user_word[-1]}」から始まる単語を入力してください。"
+            next_char = last_effective_char(user_word)
+            state['message'] = f"OK！次は「{next_char}」から始まる単語を入力してください。"
             state['player_turn'] = 'gemini'
         
         save_game_state(state)
@@ -172,8 +192,8 @@ def submit_word():
 
 
     
-    last_char = state['current_word'][-1]
-    first_char = user_word[0]
+    last_char = last_effective_char(state['current_word'])
+    first_char = normalize_char(user_word[0])
 
     if last_char != first_char:
         state['message'] = f"「{state['current_word']}」の次は「{last_char}」です。「{user_word}」はルールに合っていません。もう一度入力してください。"
@@ -189,7 +209,8 @@ def submit_word():
     else:
         state['current_word'] = user_word
         state['used_words'].append(user_word)
-        state['message'] = f"OK！次は「{user_word[-1]}」から始まる単語を入力してください。"
+        next_char = last_effective_char(user_word)
+        state['message'] = f"OK！次は「{next_char}」から始まる単語を入力してください。"
         state['player_turn'] = 'gemini'
 
     save_game_state(state)
@@ -223,7 +244,7 @@ def get_gemini_word():
     current_level_key = state.get('level', 'easy')
     level_config = GEMINI_PROMPTS.get(current_level_key, GEMINI_PROMPTS['easy'])
 
-    last_char = state['current_word'][-1]
+    last_char = last_effective_char(state['current_word'])
     current_microsecond = datetime.datetime.now().microsecond
     
     prompt_base = f"""しりとりゲームをしています。
@@ -284,12 +305,12 @@ def get_gemini_word():
             state['current_word'] = '---'
             state['gemini_error_message'] = "Geminiが単語を生成できませんでした。" 
         
-        elif not gemini_word.startswith(last_char):
+        elif normalize_char(gemini_word[0]) != last_char:
             state['game_over'] = True
             state['message'] = f"Geminiが「{gemini_word}」とルール違反しました（「{last_char}」から始まるはず）。あなたの勝ち！"
             session['game_result'] = {'message': '勝ち', 'reason': 'Geminiがルール違反'}
             state['current_word'] = gemini_word
-            state['gemini_error_message'] = f"Geminiがルール違反: 「{gemini_word}」（期待:「{last_char}」から）" 
+            state['gemini_error_message'] = f"Geminiがルール違反: 「{gemini_word}」（期待:「{last_char}」から）"
         
         elif gemini_word in state['used_words']:
             state['game_over'] = True
@@ -308,8 +329,9 @@ def get_gemini_word():
             
             state['current_word'] = gemini_word
             state['used_words'].append(gemini_word)
-            state['message'] = f"Gemini: 「{gemini_word}」！次は「{gemini_word[-1]}」から始まる単語を入力してください。"
-            state['player_turn'] = 'user' 
+            next_char = last_effective_char(gemini_word)
+            state['message'] = f"Gemini: 「{gemini_word}」！次は「{next_char}」から始まる単語を入力してください。"
+            state['player_turn'] = 'user'
 
     except Exception as e:
         print(f"Gemini API Error: {e}")
